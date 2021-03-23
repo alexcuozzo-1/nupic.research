@@ -21,13 +21,13 @@
 """
 Base GSC Experiment configuration.
 """
+import ray.tune as tune
 
 import os
 import sys
 from copy import deepcopy
 
 import numpy as np
-import ray.tune as tune
 import torch
 
 from nupic.research.frameworks.pytorch.datasets import preprocessed_gsc
@@ -67,10 +67,15 @@ models consists of two (DNI) or zero (cDNI) hidden layers and with 1024 units (
 linear, batch-normalisation, ReLU) followed by a final linear layer with 256 units.
 """
 
+class SyntheticGradientsMNISTExperiment(mixins.LogEveryLoss,
+                                        experiments.SupervisedExperiment):
+    pass
+
+
 # From original paper
 BATCH_SIZE = 256
 
-NUM_EPOCHS = 15
+NUM_EPOCHS = 45
 
 # Default configuration, uses a small MLP on MNIST
 MNIST_FCN_3 = dict(
@@ -82,7 +87,7 @@ MNIST_FCN_3 = dict(
     # Dataset
     dataset_class=MNIST,
     dataset_args=dict(
-        root="~/nta/data/mnist",
+        root="~/nta/data/",
         download=False,
         transform=transforms.ToTensor(),
     ),
@@ -111,8 +116,8 @@ MNIST_FCN_3 = dict(
     stop=dict(),
 
     # Number of epochs
-    epochs=10,
-    epochs_to_validate=range(0, 10),
+    epochs=NUM_EPOCHS,
+    epochs_to_validate=range(0, NUM_EPOCHS),
 
     # Which epochs to run and report inference over the validation dataset.
     # epochs_to_validate=range(-1, 30),  # defaults to the last 3 epochs
@@ -138,7 +143,7 @@ MNIST_FCN_3 = dict(
 
     # Optimizer class class arguments passed to the constructor
     optimizer_args=dict(
-        lr=3 * 1e-5,
+        lr=1e-3,
     ),
 
     # Learning rate scheduler class. Must inherit from "_LRScheduler"
@@ -146,8 +151,8 @@ MNIST_FCN_3 = dict(
 
     # Learning rate scheduler class class arguments passed to the constructor
     lr_scheduler_args=dict(
-        gamma=0.1,
-        milestones=[7, 11]
+        gamma=0.3,
+        milestones=[5, 10, 15, 20, 25, 30, 35, 40]
     ),
 
     # Loss function. See "torch.nn.functional"
@@ -179,8 +184,94 @@ MNIST_FCN_3 = dict(
     verbose=1,
 )
 
+MNIST_FCN_3_NO_SYNTHETIC = deepcopy(MNIST_FCN_3)
+MNIST_FCN_3_NO_SYNTHETIC.update(
+    wandb_args=dict(
+        project="synthetic_gradients_MNIST_FCN",
+        name="3-layer-no-synthetic",
+    ),
+
+    model_args=dict(
+            input_shape=(1, 28, 28),
+            num_classes=10,
+            linear_units=(256, 256, 256),
+            use_batchnorm=True,
+            use_softmax=False,
+            synthetic_gradients_layers=(False, False, False),
+            synthetic_gradients_n_hidden=2,
+            synthetic_gradients_hidden_dim=1024,
+            use_context=False,
+        )
+)
+
+MNIST_FCN_4 = deepcopy(MNIST_FCN_3)
+MNIST_FCN_4.update(
+    wandb_args=dict(
+        project="synthetic_gradients_MNIST_FCN",
+        name="4-layer",
+    ),
+    model_args=dict(
+            input_shape=(1, 28, 28),
+            num_classes=10,
+            linear_units=(256, 256, 256, 256),
+            use_batchnorm=True,
+            use_softmax=False,
+            synthetic_gradients_layers=(True, True, True, True),
+            synthetic_gradients_n_hidden=2,
+            synthetic_gradients_hidden_dim=1024,
+            use_context=False,
+        ),
+)
+
+
+MNIST_FCN_5 = deepcopy(MNIST_FCN_3)
+MNIST_FCN_5.update(
+    wandb_args=dict(
+        project="synthetic_gradients_MNIST_FCN",
+        name="5-layer",
+    ),
+    model_args=dict(
+            input_shape=(1, 28, 28),
+            num_classes=10,
+            linear_units=(256, 256, 256, 256, 256),
+            use_batchnorm=True,
+            use_softmax=False,
+            synthetic_gradients_layers=(True, True, True, True, True),
+            synthetic_gradients_n_hidden=2,
+            synthetic_gradients_hidden_dim=1024,
+            use_context=False,
+        ),
+)
+
+
+MNIST_FCN_6 = deepcopy(MNIST_FCN_3)
+MNIST_FCN_6.update(
+    wandb_args=dict(
+        project="synthetic_gradients_MNIST_FCN",
+        name="6-layer",
+    ),
+    model_args=dict(
+            input_shape=(1, 28, 28),
+            num_classes=10,
+            linear_units=(256, 256, 256, 256, 256, 256),
+            use_batchnorm=True,
+            use_softmax=False,
+            synthetic_gradients_layers=(True, True, True, True, True, True),
+            synthetic_gradients_n_hidden=2,
+            synthetic_gradients_hidden_dim=1024,
+            use_context=False,
+        ),
+)
+
 
 # Export configurations in this file
 CONFIGS = dict(
+    #MNIST FCN w/ Synthetic Gradients, no context
     mnist_fcn_3=MNIST_FCN_3,
+    mnist_fcn_4=MNIST_FCN_4,
+    mnist_fcn_5=MNIST_FCN_5,
+    mnist_fcn_6=MNIST_FCN_6,
+
+    #MNIST FCT w/o Synthetic Gradients
+    mnist_fcn_3_no_synthetic = MNIST_FCN_3_NO_SYNTHETIC,
 )

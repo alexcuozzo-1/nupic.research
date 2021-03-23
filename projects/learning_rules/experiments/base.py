@@ -22,12 +22,13 @@
 Base GSC Experiment configuration.
 """
 
+import ray.tune as tune
+
 import os
 import sys
 from copy import deepcopy
 
 import numpy as np
-import ray.tune as tune
 import torch
 
 from nupic.research.frameworks.pytorch.datasets import preprocessed_gsc
@@ -35,6 +36,8 @@ from projects.learning_rules.synthetic_gradients.sample_network import SparseSyn
 from nupic.research.frameworks.vernon.distributed import experiments, mixins
 from torchvision.datasets import MNIST
 from torchvision import transforms
+
+
 
 
 class SupervisedSyntheticGradientsExperiment(mixins.RezeroWeights,

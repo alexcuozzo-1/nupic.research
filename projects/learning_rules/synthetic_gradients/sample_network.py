@@ -111,8 +111,8 @@ class MNISTSyntheticFCN(nn.Sequential):
     :param synthetic_gradient_linear units:a tuple of integers representing the
                                            number of units in each hidden layer of
                                            the synthetic gradients module
-    :param use_batchnorm: boolean, defaults to true
-    :param use_softmax: boolean, defaults to true
+    :param use_batchnorm: boolean, defaults to True
+    :param use_softmax: boolean, defaults to False
     """
 
     def __init__(
