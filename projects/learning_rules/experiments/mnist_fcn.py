@@ -33,16 +33,10 @@ import torch
 from nupic.research.frameworks.pytorch.datasets import preprocessed_gsc
 from projects.learning_rules.synthetic_gradients.sample_network import \
     SparseSyntheticMLP, MNISTSyntheticFCN
-from nupic.research.frameworks.vernon import experiments, mixins
+from nupic.research.frameworks.vernon.distributed import experiments, mixins
 from torchvision.datasets import MNIST
 from torchvision import transforms
-
-
-class SupervisedSyntheticGradientsExperiment(mixins.RezeroWeights,
-                                    mixins.UpdateBoostStrength,
-                                    mixins.LogEveryLoss,
-                                    experiments.SupervisedExperiment):
-    pass
+from .base import SupervisedSyntheticGradientsExperiment
 
 """
 Common Details 
@@ -132,7 +126,7 @@ MNIST_FCN_3 = dict(
         num_classes=10,
         linear_units=(256, 256, 256),
         use_batchnorm=True,
-        use_softmax=True,
+        use_softmax=False,
         synthetic_gradients_layers=(True, True, True),
         synthetic_gradients_n_hidden=2,
         synthetic_gradients_hidden_dim=1024,

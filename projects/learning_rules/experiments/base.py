@@ -32,7 +32,7 @@ import torch
 
 from nupic.research.frameworks.pytorch.datasets import preprocessed_gsc
 from projects.learning_rules.synthetic_gradients.sample_network import SparseSyntheticMLP
-from nupic.research.frameworks.vernon import experiments, mixins
+from nupic.research.frameworks.vernon.distributed import experiments, mixins
 from torchvision.datasets import MNIST
 from torchvision import transforms
 

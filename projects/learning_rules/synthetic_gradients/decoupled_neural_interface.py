@@ -297,7 +297,7 @@ class BasicSynthesizer(torch.nn.Module):
             self.input_context = None
 
         self.layers = []
-        for i in range(n_hidden):
+        for layer_index in range(n_hidden):
             out_features = hidden_dim if layer_index < n_hidden - 1 else output_dim
             self.layers.append(
                 torch.nn.Linear(in_features=hidden_dim,out_features=out_features)
@@ -309,7 +309,7 @@ class BasicSynthesizer(torch.nn.Module):
 
         # zero-initialize the last layer, as in the paper
         if n_hidden > 0:
-            init.constant(self.layers[-1].weight, 0)
+            init.constant(self.layers[-3].weight, 0)
         else:
             init.constant(self.input_trigger.weight, 0)
             if context_dim is not None:
