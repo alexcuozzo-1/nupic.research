@@ -75,7 +75,10 @@ class SyntheticGradientsMNISTExperiment(mixins.LogEveryLoss,
 # From original paper
 BATCH_SIZE = 256
 
-NUM_EPOCHS = 45
+# Approximately 200 iterations per epoch
+# Paper calls for 500k iterations, which would be
+# 500k/200 = 2.5k epochs! that's too much, starting with 750
+NUM_EPOCHS = 750
 
 # Default configuration, uses a small MLP on MNIST
 MNIST_FCN_3 = dict(
@@ -143,7 +146,7 @@ MNIST_FCN_3 = dict(
 
     # Optimizer class class arguments passed to the constructor
     optimizer_args=dict(
-        lr=1e-3,
+        lr=3 * 1e-5,
     ),
 
     # Learning rate scheduler class. Must inherit from "_LRScheduler"
@@ -151,8 +154,8 @@ MNIST_FCN_3 = dict(
 
     # Learning rate scheduler class class arguments passed to the constructor
     lr_scheduler_args=dict(
-        gamma=0.3,
-        milestones=[5, 10, 15, 20, 25, 30, 35, 40]
+        gamma=1 / 3. ,
+        milestones=[450, 600]
     ),
 
     # Loss function. See "torch.nn.functional"
