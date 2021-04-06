@@ -19,12 +19,7 @@
 #  http://numenta.org/licenses/
 #
 # ------------------------------------------------------------------------------
-# Run pip install -r requirements.txt to reproduce the currently tested environment
-# Last update: 3/29/2021
-
-git+git:https://github.com/huggingface/transformers@master#egg=transformers
-datasets>=1.5.0
-torch>=1.8.1
-wandb>=0.10.23
-ray>=1.2.0
-pickle5>=0.0.11
+from .multiheaded_sparse_mlp import MultiHeadedSparseMLP
+from .multiheaded_dendrite_mlp import MultiHeadedDendriticMLP
+from .dendrite_mlp import DendriticMLP
+from .sparse_mlp import SparseMLP

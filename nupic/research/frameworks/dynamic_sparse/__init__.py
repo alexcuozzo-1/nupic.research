@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2020, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2021, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -19,24 +19,5 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from .base import CONFIGS as BASE
-from .test_sigopt import CONFIGS as TEST_SIGOPT
-from .gsc_onecyclelr import CONFIGS as SPARSE_CNN_ONECYCLELR
-from .gsc_onecyclelr_sigopt import CONFIGS as SIGOPT_SPARSE_CNN_ONECYCLELR
-from .gsc_sampled_kwinner import CONFIGS as SAMPLED_K_WINNER
-from .gsc_vdrop_pruning import CONFIGS as VDROP_PRUNING
-
-
-"""
-Import and collect all Imagenet experiment configurations into one CONFIG
-"""
-__all__ = ["CONFIGS"]
-
-# Collect all configurations
-CONFIGS = dict()
-CONFIGS.update(BASE)
-CONFIGS.update(TEST_SIGOPT)
-CONFIGS.update(SPARSE_CNN_ONECYCLELR)
-CONFIGS.update(SIGOPT_SPARSE_CNN_ONECYCLELR)
-CONFIGS.update(SAMPLED_K_WINNER)
-CONFIGS.update(VDROP_PRUNING)
+from .global_pruning import *
+from .prune_scheduler import *
