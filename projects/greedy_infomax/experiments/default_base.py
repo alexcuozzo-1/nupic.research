@@ -26,18 +26,19 @@ import numpy as np
 import torch
 
 from nupic.research.frameworks.vernon.distributed import experiments, mixins
-from torchvision.datasets import STL10
+from torchvision.datasets import STL10, FakeData
+from torchvision import transforms
+from ray import tune
+import sys
+from nupic.research.frameworks.greedy_infomax.models.FullModel import FullVisionModel
 
-from .base import DEFAULT_BASE
-from vernon_integration.GIMFullModel import FullVisionModel
-from vernon_integration.contrastive_training import train_model_contrastive
 
 class SelfSupervisedGreedyInfoMaxExperiment(
     mixins.LogEveryLoss,
     experiments.SelfSupervisedExperiment,
 ):
     def __init__(self, config):
-        super(SelfSupervisedExperiment, self).__init__()
+        super(SelfSupervisedGreedyInfoMaxExperiment, self).__init__()
         self.supervised_loader = None
         self.prediction_step = config.get("prediction_step", 5)
 
@@ -47,6 +48,7 @@ class SelfSupervisedGreedyInfoMaxExperiment(
 
 
 
+# get transforms for the dataset
 def get_transforms(eval=False, aug=None):
     trans = []
 
@@ -77,14 +79,15 @@ aug = {
         "stl10": {
             "randcrop": 64,
             "flip": True,
-            "grayscale": opt.grayscale,
+            "grayscale": True,
             "mean": [0.4313, 0.4156, 0.3663],  # values for train+unsupervised combined
             "std": [0.2683, 0.2610, 0.2687],
             "bw_mean": [0.4120],  # values for train+unsupervised combined
             "bw_std": [0.2570],
         }  # values for labeled train set: mean [0.4469, 0.4400, 0.4069], std [0.2603, 0.2566, 0.2713]
 }
-transform_train = transforms.Compose([get_transforms(eval=False, aug=aug["stl10"])])
+transform_unsupervised = transforms.Compose([
+    get_transforms(eval=False, aug=aug["stl10"])])
 transform_valid = transforms.Compose([get_transforms(eval=True, aug=aug["stl10"])])
 
 
@@ -92,12 +95,23 @@ base_dataset_args=dict(
         root="~/nta/data/STL10",
         download=False,
 )
-train_dataset_args = deepcopy(base_dataset_args)
-train_dataset_args.update(dict(transform=transform_train))
-supervised_dataset_args = deepcopy(train_dataset_args)
+
+#fake data class for debugging purposes
+def fake_data(size=256, image_size=(3, 96, 96), num_classes = 10, train=True,
+              transform=transform_valid):
+    return FakeData(size=size, image_size=image_size, num_classes=num_classes,
+    transform=transform)
+
+base_dataset_args=dict(
+        root="~/nta/data/",
+        download=False,
+)
+
+unsupervised_dataset_args = deepcopy(base_dataset_args)
+unsupervised_dataset_args.update(dict(transform=transform_unsupervised))
+supervised_dataset_args = deepcopy(unsupervised_dataset_args)
 test_dataset_args = deepcopy(base_dataset_args)
 test_dataset_args.update(transform_valid)
-
 
 
 BATCH_SIZE = 32
@@ -105,11 +119,11 @@ DEFAULT_BASE = dict(
     experiment_class=SelfSupervisedGreedyInfoMaxExperiment,
 
     # Dataset
-    dataset_class=STL10,
-    train_dataset_args=train_dataset_args,
-    supervised_dataset_args=supervised_dataset_args,
-    test_dataset_args=test_dataset_args,
-    workers=16,
+    dataset_class=fake_data,
+    # train_dataset_args=train_dataset_args,
+    # supervised_dataset_args=supervised_dataset_args,
+    # test_dataset_args=test_dataset_args,
+    workers=1,
 
     # Seed
     seed=tune.sample_from(lambda spec: np.random.randint(1, 10000)),
@@ -142,11 +156,16 @@ DEFAULT_BASE = dict(
                       negative_samples=16,
                       model_splits=3,
                       supervised=False,
-                      resnet_50=True,
+                      resnet_50=False,
                       grayscale=True,),
 
     #Greedy InfoMax args
-    prediction_step = 5, #time steps to predict into future
+    greedy_infomax_args = dict(
+        # time steps to predict into future
+        prediction_step = 5,
+        # number of module splits
+        modules=3, # number of module splits
+        ),
 
     # Optimizer class. Must inherit from "torch.optim.Optimizer"
     optimizer_class=torch.optim.Adam,
@@ -156,7 +175,6 @@ DEFAULT_BASE = dict(
         lr=1.5e-4,
     ),
 
-    train_model_func=train_model_contrastive,
 
     # Learning rate scheduler class. Must inherit from "_LRScheduler"
     lr_scheduler_class=torch.optim.lr_scheduler.StepLR,

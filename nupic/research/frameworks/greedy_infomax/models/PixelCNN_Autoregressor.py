@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 from .PixelCNN import PixelCNNGatedLayer, PixelCNNGatedStack
-from nupic.research.frameworks.greedy_infomax.loss_functions.GIMInfoNCE_Loss import InfoNCE_Loss
+from nupic.research.frameworks.greedy_infomax.loss_functions.InfoNCE_Loss import InfoNCE_Loss
 
 
 class PixelCNN_Autoregressor(torch.nn.Module):

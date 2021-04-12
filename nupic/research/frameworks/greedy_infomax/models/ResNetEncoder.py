@@ -2,8 +2,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch
 
-from nupic.research.frameworks.greedy_infomax.loss_functions.GIMInfoNCE_Loss import InfoNCE_Loss
-from nupic.research.frameworks.greedy_infomax.loss_functions.GIMSupervised_Loss import Supervised_Loss
+from nupic.research.frameworks.greedy_infomax.loss_functions.InfoNCE_Loss import InfoNCE_Loss
+from nupic.research.frameworks.greedy_infomax.loss_functions.Supervised_Loss import Supervised_Loss
 
 
 class PreActBlockNoBN(nn.Module):

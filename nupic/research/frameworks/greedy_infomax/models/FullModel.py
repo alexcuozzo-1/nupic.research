@@ -1,10 +1,8 @@
 import torch
 import torch.nn as nn
 
-from vernon_integration.GIMResNetEncoder import \
-    ResNet_Encoder, PreActBlockNoBN, PreActBottleneckNoBN
-from vernon_integration.GIMPixelCNN_Autoregressor import \
-    PixelCNN_Autoregressor
+from nupic.research.frameworks.greedy_infomax.models import \
+    ResNet_Encoder, PreActBlockNoBN, PreActBottleneckNoBN, PixelCNN_Autoregressor
 
 
 
